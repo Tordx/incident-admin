@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "es6",       // Specifies the ECMAScript target version
+    "module": "CommonJS",
+    "moduleResolution": "node",    // Specifies the module code generation
+    "strict": true,        // Enables strict type checking
+    "jsx": "react",        // Specifies how JSX should be transpiled
+    "esModuleInterop": true,
+    "baseUrl": "./src",
+    "paths": {
+      "firebase/*": ["firebase/*"]
+    }
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.mp3" 
+
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

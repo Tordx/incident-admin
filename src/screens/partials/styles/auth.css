@@ -1,0 +1,70 @@
+/* Global styling */
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100%;
+}
+
+/* Inner container styles */
+.inner-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  max-width: 100%; /* Ensure it doesn't exceed the parent's width */
+}
+
+/* Login container styles */
+.login-container {
+  flex: 1; /* Take up 50% of the available width */
+  background-color: #fff;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Image container styles */
+.image-container {
+  flex: 1; /* Take up 50% of the available width */
+  background: url('https://cdn.pixabay.com/photo/2015/03/17/02/01/cubes-677092_1280.png') no-repeat center center fixed;
+  background-size: cover;
+}
+
+.login-input-container {
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  width: 100%;
+  height: 400px;
+}
+
+.login-input-container input {
+  width: 80%;
+  height: 50px;
+  border-width: 0px ;
+  border-color: #404040;
+  background-color: #fff;
+  padding-left: 10px;
+  border-bottom-width: 1px;
+  margin-bottom: 20px;
+  font-weight: 400;
+  color: #404040;
+}
+
+.login-input-container button {
+  border-radius: 10px;
+  padding: 10px 20px;
+  width: 75%;
+  background-color: #0095FF;
+}
+
+.login-header {
+  font-size: 100px;
+  font-weight: bold;
+  color: #808080;
+  top: 15rem;
+}
