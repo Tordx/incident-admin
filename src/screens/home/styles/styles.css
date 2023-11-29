@@ -465,11 +465,23 @@
 .map-card select {
   border: none;
   font-size: 12px;
-  color: #0095FF;
+  padding: 10px;
+  background-color: #ff0000;
   align-self: flex-start;
   justify-self: flex-start;
   text-align: end;
   
+}
+
+.cards span {
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+  width: 80%;
+}
+
+.cardmargin {
+  margin-top: 50px;
 }
 
 .cards {
@@ -481,13 +493,17 @@
   
 }
 
+.cards strong {
+  font-size: 30px;
+}
+
 
 .cards div {
   flex-direction: row;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 350px;
+  width: 90%;
   border-width: 0px;
 }
 
@@ -499,11 +515,14 @@
 
 .cards select {
   border: none;
+  border-radius: 5px;
   font-size: 12px;
-  color: #0095FF;
-  align-self: flex-start;
-  justify-self: flex-start;
-  text-align: end;
+  padding: 10px;
+  color: white;
+  background-color: #ff0000;
+  text-align: center;
+  align-self: center;
+  justify-self:center;
   
 }
 

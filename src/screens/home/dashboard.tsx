@@ -41,9 +41,7 @@ export default function Home({}) {
     setloading(true)
     try {
 
-      const result: reportdata[] = await fetchdata('incident', true) || [];
-      setincidentdata(result)
-
+      const result: reportdata[] = await fetchdata('incident') || [];
       const incidentDataByYear = result.filter((item) => {
           const itemYear = item.date?.split('/')[2];
           return itemYear === selectedYear;
@@ -141,198 +139,12 @@ export default function Home({}) {
     }
   }
 
-  const countMap = report.reduce((acc: Record<string, number>, item: string) => {
-    acc[item] = (acc[item] || 0) + 1;
+  const cityOccurrences = geocodingResults.reduce((acc, city) => {
+    acc[city] = (acc[city] || 0) + 1;
     return acc;
-  }, {});
-  
-  const countArray = Object.entries(countMap).map(([itemName, count]) => ({ itemName, count }));
-  
-  countArray.sort((a, b) => b.count - a.count);
-  
-  const countElements = countArray.map(({ itemName, count }, index) => (
-    <div key={index} className='progress-row'>
-      <p>{itemName}</p>
-      <p>{count}</p>
-    </div>
-  ));
+  }, {} as Record<string, number>);
 
-  const countMapIncident = geocodingResults.reduce((acc: Record<string, number>, item: string) => {
-    acc[item] = (acc[item] || 0) + 1;
-    return acc;
-  }, {});
-  
-  const counIncidentArray = Object.entries(countMapIncident).map(([itemName, count]) => ({ itemName, count }));
-  
-  counIncidentArray.sort((a, b) => b.count - a.count);
-  
-  const countIncidentMap = counIncidentArray.map(({ itemName, count }, index) => (
-    <div key={index} className='progress-row'>
-      <p>{itemName}</p>
-      <p>{count}</p>
-    </div>
-  ));
-
-  console.log(countArray)
-
-  const printableTable = (
-    <table className='printable-table'>
-      <thead>
-        <tr>
-          <th>Incident</th>
-          <th>Occurrences</th>
-        </tr>
-      </thead>
-      <tbody>
-        {countArray.map(({ itemName, count }, index) => (
-          <tr key={index}>
-            <td>{itemName}</td>
-            <td>{count}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  );
-
-  const sortedData = incidentdata.slice().sort((a, b) => {
-    const dateA = new Date(a.date);
-    const dateB = new Date(b.date);
-    return dateB.getTime() - dateA.getTime();
-  });
-
-  const printableIncidentTable = (
-    <div>
-    <table className="printable-table">
-      <thead>
-        <tr>
-          <th>Reporter Name</th>
-          <th>Incident Type</th>
-          <th>Date</th>
-        </tr>
-      </thead>
-      <tbody>
-        {sortedData &&
-          sortedData.map((item: reportdata, index) => (
-            <tr key={index}>
-              <td>{item.reporter}</td>
-              <td>{item.reporttype}</td>
-              <td>{item.date}</td>
-            </tr>
-          ))}
-      </tbody>
-    </table>
-  </div>
-  )
-
-  const handlePrint = () => {
-    const printableContent = renderToString(printableTable);
-  
-    if (printableContent) {
-      const printWindow = window.open('', '_blank');
-      if (printWindow) {
-        printWindow.document.write(`
-          <html>
-            <head>
-              <style>
-                @media print {
-                  body * {
-                    visibility: hidden;
-                  }
-                  .printable-table, .printable-table * {
-                    visibility: visible;
-                  }
-                  .printable-table {
-                    position: absolute;
-                    left: 0;
-                    top: 0;
-                  }
-                  table {
-                    border-collapse: collapse;
-                    width: 100%;
-                  }
-                  th, td {
-                    border: 1px solid #dddddd;
-                    text-align: left;
-                    padding: 8px;
-                  }
-                  th {
-                    background-color: #f2f2f2;
-                  }
-                }
-              </style>
-            </head>
-            <body>
-              ${printableContent}
-              <script>
-                window.onload = function() {
-                  window.print();
-                  window.onafterprint = function() {
-                    printWindow.close();
-                  }
-                }
-              </script>
-            </body>
-          </html>
-        `);
-        printWindow.document.close();
-      }
-    }
-  };
-  
-  const handleIncidentsPrint = () => {
-    const printableIncidentData = renderToString(printableIncidentTable)
-    if(printableIncidentData) {
-      const printWindow = window.open('', '_blank');
-      if(printWindow){
-        printWindow.document.write(`
-          <html>
-            <head>
-              <style>
-                @media print {
-                  body * {
-                    visibility: hidden;
-                  }
-                  .printable-table, .printable-table * {
-                    visibility: visible;
-                  }
-                  .printable-table {
-                    position: absolute;
-                    left: 0;
-                    top: 0;
-                  }
-                  table {
-                    border-collapse: collapse;
-                    width: 100%;
-                  }
-                  th, td {
-                    border: 1px solid #dddddd;
-                    text-align: left;
-                    padding: 8px;
-                  }
-                  th {
-                    background-color: #f2f2f2;
-                  }
-                }
-              </style>
-            </head>
-            <body>
-              ${printableIncidentData}
-              <script>
-                window.onload = function() {
-                  window.print();
-                  window.onafterprint = function() {
-                    printWindow.close();
-                  }
-                }
-              </script>
-            </body>
-          </html>
-        `);
-        printWindow.document.close();
-      }
-    }
-
-  }
+  const tableData: [string, number][] = Object.entries(cityOccurrences)
 
 
   return (
@@ -364,208 +176,47 @@ export default function Home({}) {
         :
         <div className='dashboard-data-off'>
           <div className='dashboard-data-inner'>
-          <div>
-            <Cards>
-              <div className='cards'>
-                <div>
-                <strong>Total No. of incidents</strong>
-                <h4>{incidentdata.length}</h4>
-                </div>
-                <div>
-                <span>Year</span>
-                <select defaultValue = {selectedYear} onChange={(e) => setSelectedYear(e.target.value)}>
-                <option value = ""label = 'Select Year' disabled/>
-                  <option value = "2024"label = '2024'/>
-                  <option value = "2023"label = '2023'/>
-                  <option value = "2022"   label = '2022'/>
-                </select>
-                </div>
-              </div>
-            </Cards>
-            <Cards>
-              <div className='cards'>
-                <div>
-                <strong>Users Overview</strong>
-                </div>
-                <div>
-                  <PieChart
-                    slotProps={{
-                      legend:{
-                        
-                        direction: 'column',
-                        position: {
-                          horizontal: 'right', 
-                          vertical: 'middle'
-                        },
-                        itemMarkWidth: 10,
-                        itemMarkHeight: 10,
-                        labelStyle: {
-                          fontSize: 12
-                        }
-                      },
-
-                      
-                    }}
-                    series = {[{
-                      data:[
-                        {
-                          id: 0, 
-                          value: 50, 
-                          label: `total users ${resident.length + responder.length}`,
-                          color: 'teal'
-                        },
-                        {
-                          id: 1, 
-                          value: 10, 
-                          label: `residents ${resident.length}`,
-                          color: 'blue'
-                        },
-                        {
-                          id: 2, 
-                          value: 10, 
-                          label: `responders ${responder.length}`,
-                          color: 'red'
-                        },
-                       
-                      ],
-                      innerRadius: 30,
-                      outerRadius: 100,
-                      paddingAngle: 5,
-                      cornerRadius: 5,
-                      startAngle: 0,
-                      endAngle: 360,
-                      cx: 100,
-                      cy: 150,
-                    }]}
-                  />
-                </div>
-                <div>
-                <span>Year</span>
-                <select defaultValue = {selectedYear} onChange={(e) => setSelectedYear(e.target.value)}>
-                  <option value = '' disabled label = 'select year'/>
-                  <option value = "2024"   label = '2024'/>
-                  <option value = "2023"label = '2023'/>
-                  <option value = "2022"   label = '2022'/>
-                </select>
-                </div>
-              </div>
-            </Cards>
-          </div>
-          <Cards>
-            <div className='cards'>
-              <div> 
-              <strong>Top 5 Incidents</strong>
-              <a onClick={handlePrint}>print</a>
-              </div>
-              <div>
-                <span  className='progress-wrapper'>
-                    {countElements}
-                </span>
-              </div>
             <div>
-                <span>Year</span>
-                <select defaultValue = {selectedYear} onChange={(e) => setSelectedYear(e.target.value)}>
-                  <option value = '' disabled label = 'select year'/>
-                  <option value = "2024" label = '2024'/>
-                  <option value = "2023" label = '2023'/>
-                  <option value = "2022"   label = '2022'/>
+              <div className='cards'>
+                <strong>Reported Incident per month</strong>
+                <span>
+                <select defaultValue={selectedYear} onChange={(e) => setSelectedYear(e.target.value)}>
+                  <option disabled label='Select year' value="" />
+                  <option label='2024' value={'2024'} />
+                  <option label='2023' value={'2023'} />
+                  <option label='2022' value={'2022'} />
                 </select>
-                </div>
-            </div>
-          </Cards>
-          <Cards>
-            <div className='cards'>
-              <div> 
-              <strong>Area of most incidents</strong>
-              </div>
-              <div>
-                <span  className='progress-wrapper'>
-                    {countIncidentMap}
                 </span>
+                <div>
+                  <Chart year={selectedYear}/>
+                </div>
               </div>
-              <div>
-                <span>Year</span>
-                <select defaultValue = {selectedYear} onChange={(e) => setSelectedYear(e.target.value)}>
-                  <option value = '' disabled label = 'select year'/>
-                  <option value = "2024" label = '2024'/>
-                  <option value = "2023"label = '2023'/>
-                  <option value = "2022" label = '2022'/>
-                </select>
+              <div className='cards cardmargin'>
+                <strong>Total Incident Report per Area </strong>
+                <br/>
+                  <div>
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Area of Incidents</th>
+                          <th>Total Report this Month</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {/* Map through the tableData to populate the table */}
+                        {tableData.map(([city, count], index) => (
+                          <tr key={index}>
+                            <td>{city}</td>
+                            <td>{count}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <br/>
                 </div>
-            </div>
-          </Cards>
-        </div>
-        <div className='dashboard-data-inner'>
-          <div>
-            <Cards>
-            <div className='list-card'>
-                  <div> 
-                  <strong>Recent Incident Reports</strong>
-                  <a onClick={handleIncidentsPrint}>print</a>
-                  </div>
-                  <div>
-                 <Details displayCount={displayCount} data = {incidentdata} />
-                  </div>
-                  {incidentdata.length > displayCount && (
-                    <div className="show-more-less">
-                      
-                      {displayCount > 20 ? <p onClick={handleShowLess}>Show Less</p> : <p onClick={handleShowMore}>Show More</p>}
-                    </div>
-                  )}
-                  <div>
-                    <span>Year</span>
-                    <select defaultValue = {selectedYear} onChange={(e) => setSelectedYear(e.target.value)}>
-                      <option value = '' disabled label = 'select year'/>
-                      <option value = "2024"   label = '2024'/>
-                      <option value = "2023"label = '2023'/>
-                      <option value = "2022"   label = '2022'/>
-                    </select>
-                    </div>
-                </div>
-              </Cards>
-            </div>
-            <div>
-            <Cards>
-                <div className='list-card'>
-                  <div> 
-                  <strong>New users & Reported incidents per month</strong>
-                  </div>
-                  <div>
-                    <span>Year</span>
-                    <select defaultValue = {selectedYear} onChange={(e) => setSelectedYear(e.target.value)}>
-                      <option value = '' disabled label = 'select year'/>
-                      <option value = "2024"   label = '2024'/>
-                      <option value = "2023"label = '2023'/>
-                      <option value = "2022"   label = '2022'/>
-                    </select>
-                  </div>
-                  <div>
-                    <Chart year={selectedYear}/>
-                  </div>
-                  
-                </div>
-              </Cards>
             </div>
           </div>
-          <Cards>
-                <div className='map-card'>
-                  <div> 
-                  <strong>New users & Reported incidents per month</strong>
-                  </div>
-                  <div>
-                    <Maps coordinates={coordinates}/>
-                  </div>
-                  <div>
-                    <span>Year</span>
-                    <select defaultValue = {selectedYear} onChange={(e) => setSelectedYear(e.target.value)}>
-                      <option value = '' disabled label = 'select year'/>
-                      <option value = "2024"   label = '2024'/>
-                      <option value = "2023"label = '2023'/>
-                      <option value = "2022"   label = '2022'/>
-                    </select>
-                    </div>
-                </div>
-              </Cards>
         </div>
         }
       </div>
