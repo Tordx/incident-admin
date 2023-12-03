@@ -15,6 +15,7 @@ import Chart from 'screens/contents/components/home/barchart'
 import Maps from 'screens/contents/components/home/map'
 import { Coordinate } from 'mapbox-gl'
 import { renderToString } from 'react-dom/server';
+import IndividualChart from 'screens/contents/components/home/individualChart'
 
 interface Coord {
   coordinates: [number, number][];
@@ -22,18 +23,20 @@ interface Coord {
 
 export default function Home({}) {
 
-  const [incidentdata, setincidentdata] = useState<reportdata[]>([])
-  const [userdata, setuserdata] = useState<userdata[]>([])
-  const [resident, setresident] = useState<userdata[]>([])
-  const [responder, setresponder] = useState<userdata[]>([])
-  const [city, setcity] = useState([])
   const [isloading, setisloading] = useState(false);
   const [issuccess, setissuccess] = useState(false);
-  const [report, setreport] = useState<string[]>([])
-  const [geocodingResults, setGeocodingResults] = useState<string[]>([]);
+  const [report, setreport] = useState<reportdata[]>([])
+  const [incidenttype, setincidenttype] = useState<string[]>([])
+  const [accident, setaccident] = useState<reportdata[]>([]);
+  const [calamities, setcalamities] = useState<reportdata[]>([]);
+  const [crime, setcrime] = useState<reportdata[]>([]);
   const [selectedYear, setSelectedYear] = useState('2023');
-  const [coordinates, setcoordinates] = useState<[number, number][]>([])
-  const [loading, setloading] = useState(false)
+  const [loading, setloading] = useState(false);
+  const [showAccident, setshowAccident] = useState(false);
+  const [showCalam, setshowCalam] = useState(false);
+  const [showCrim, setshowCrim] = useState(false);
+  const [bsort, setbsort] = useState(false)
+  const [csort, setcsort] = useState(false)
 
   useEffect(() => {
     
@@ -46,24 +49,15 @@ export default function Home({}) {
           const itemYear = item.date?.split('/')[2];
           return itemYear === selectedYear;
       });
-      setincidentdata(incidentDataByYear)
-
-      const filteredReportType: string[] = incidentDataByYear
-      .filter(item => item.reporttype) 
+      setreport(incidentDataByYear);
+      
+      const filterIncidentType: string[] = incidentDataByYear
+      .filter(item => item.barangay) 
       .map((item, index) => 
-         item.reporttype,
+         item.barangay,
       );
-      setreport(filteredReportType);
-      console.log(filteredReportType)
-       
-      const mapResults: Coord = {
-        coordinates: incidentDataByYear
-          .filter((item) => item.reporttype)
-          .map((item) => item.coordinates),
-      };
+      setincidenttype(filterIncidentType)
       
-      
-      setcoordinates(mapResults.coordinates)
       setloading(false)
     } catch (err) {
       console.log(err)
@@ -72,80 +66,47 @@ export default function Home({}) {
   }
 
   fetchData();
-  fetchUsers();
   },[selectedYear])
 
 
   const [displayCount, setDisplayCount] = useState(10);
 
-  const handleShowMore = () => {
-    setDisplayCount(displayCount + 10);
-  };
-
-  const handleShowLess = () => {
-    setDisplayCount(10);
-  };
-
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const results = [];
-      
-      for (const item of incidentdata) {
-        if (item.coordinates[0] !== null && item.coordinates[1] !== null) {
-          const reverseGeocodingUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${item.coordinates[1]}&lon=${item.coordinates[0]}`;
-  
-          try {
-            const response = await fetch(reverseGeocodingUrl);
-  
-            if (response.ok) {
-              const data = await response.json();
-              const { address } = data;
-              const city = address.street || address.road || address.city || address.town || address.village || address.county || address.state;
-              const state = address.county || address.state;
-              results.push(city);
-            } else {
-              console.error('Reverse geocoding request failed.');
-              results.push(null);
-            }
-          } catch (error) {
-            console.error('Reverse geocoding error:', error);
-            results.push(null);
-          }
-        } else {
-          results.push(null);
-        }
-      }
-  
-      setGeocodingResults(results.filter(city => city !== null) as (string)[]);
-    };
-  
-    fetchData();
-  }, []);
-
    
-
-  const fetchUsers =async () => {
-    try {
-
-      const result: userdata[] = await fetchusers() || [];
-      setuserdata(result)
-      const responderdata = result.filter((item) => item.userType === 'Admin' || item.type !== 'user')
-      setresponder(responderdata)
-      const residentdata = result.filter((item) => item.type === 'user')
-      setresident(residentdata)
-    } catch(err) {
-      console.log(err)
-    }
-  }
-
-  const cityOccurrences = geocodingResults.reduce((acc, city) => {
+  const occurencies = incidenttype.reduce((acc, city) => {
     acc[city] = (acc[city] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
 
-  const tableData: [string, number][] = Object.entries(cityOccurrences)
+  const tableData: [string, number][] = Object.entries(occurencies)
 
+  const [sortedColumn, setSortedColumn] = useState(null);
+  const [sortOrder, setSortOrder] = useState('asc');
+
+  const handleSort = (column: any) => {
+    if(column === 'city'){
+      setbsort(!bsort)
+    }
+    if(column === 'count'){
+      setcsort(!csort)
+    }
+    setSortedColumn(column);
+    setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+  };
+
+  const sortedTableData = [...tableData].sort((a, b) => {
+    const aValue = sortedColumn === 'city' ? a[0] : a[1];
+    const bValue = sortedColumn === 'city' ? b[0] : b[1];
+
+    if (typeof aValue === 'string' && typeof bValue === 'string') {
+      return sortOrder === 'asc' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
+    } else {
+      // Convert values to numbers before comparison
+      const aValueNumber = Number(aValue);
+      const bValueNumber = Number(bValue);
+
+      return sortOrder === 'asc' ? aValueNumber - bValueNumber : bValueNumber - aValueNumber;
+    }
+  });
 
   return (
     <div className='container'>
@@ -179,6 +140,11 @@ export default function Home({}) {
             <div>
               <div className='cards'>
                 <strong>Reported Incident per month</strong>
+                <br/>
+                <span className='data-length'>
+                <h5>Selected Year: <strong>{selectedYear}</strong></h5>
+                <h5>Total Reported Incidents: <strong>{report.length}</strong></h5>
+                </span>
                 <span>
                 <select defaultValue={selectedYear} onChange={(e) => setSelectedYear(e.target.value)}>
                   <option disabled label='Select year' value="" />
@@ -193,19 +159,20 @@ export default function Home({}) {
               </div>
               <div className='cards cardmargin'>
                 <strong>Total Incident Report per Area </strong>
-                <br/>
                   <div>
                     <table>
-                      <thead>
+                      <thead className='dark-table'>
                         <tr>
-                          <th>Area of Incidents</th>
-                          <th>Total Report this Month</th>
+                          <th>No.</th>
+                          <th onClick={() => handleSort('city')}>Area of Incidents {bsort ? '↓' : '↑'}</th>
+                          <th onClick={() => handleSort('count')}>Total Report this Month {csort ? '↓' : '↑'}</th>
                         </tr>
                       </thead>
                       <tbody>
                         {/* Map through the tableData to populate the table */}
-                        {tableData.map(([city, count], index) => (
+                        {sortedTableData.map(([city, count], index) => (
                           <tr key={index}>
+                            <td>{index + 1}</td>
                             <td>{city}</td>
                             <td>{count}</td>
                           </tr>
@@ -214,7 +181,56 @@ export default function Home({}) {
                     </table>
                   </div>
                   <br/>
-                </div>
+                  <br/>
+                  {showCalam ? 
+                      <> 
+                      <IndividualChart incidentType = {'Natural/Man-made Calamities'} year = {selectedYear} />
+                      <br/>
+                      <br/>
+                      <button onClick={() => setshowCalam(false)}>Close</button>
+                      </>
+                  :
+                      <div onClick={() => setshowCalam(true)}  className="image-box">
+                        <img src="https://i.imgur.com/HBbbYkU.png" alt="Description of the image"/>
+                        <div className="image-text">
+                          <p>Natural/Man-made Calamities</p>
+                        </div>  
+                      </div>
+                    }
+                  <br/>
+                  {showAccident ? 
+                      <> 
+                      <IndividualChart incidentType = {'Accidents'} year = {selectedYear} />
+                      <br/>
+                      <br/>
+                      <button onClick={() => setshowAccident(false)}>Close</button>
+                      </>
+                  :
+                      <div  onClick={() => setshowAccident(true)} className="image-box">
+                      <img src="https://dornsife.usc.edu/wp-content/uploads/sites/7/2023/04/story-3195.jpg" alt="Description of the image"/>
+                      <div className="image-text">
+                        <p>Accidents</p>
+                      </div>  
+                      </div>
+                    }
+                  <br/>
+                  {showCrim ? 
+                      <> 
+                      <IndividualChart incidentType = {'Crime Incidents'} year = {selectedYear} />
+                      <br/>
+                      <br/>
+                      <button onClick={() => setshowCrim(false)}>Close</button>
+                      </>
+                  :
+                      <div onClick={() => setshowCrim(true)}  className="image-box">
+                      <img src="https://www.boholchronicle.com.ph/wp-content/uploads/2019/03/crime-scene-do-not-cross-3.png" alt="Description of the image"/>
+                      <div className="image-text">
+                        <p>Crime Incidents</p>
+                       </div>  
+                      </div>
+                    }
+                  <br/>
+              </div>
             </div>
           </div>
         </div>

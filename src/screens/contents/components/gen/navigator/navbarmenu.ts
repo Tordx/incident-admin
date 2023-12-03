@@ -1,10 +1,4 @@
-const Navbarmenu = [
-    {
-        id: 1,
-        path: '/admin/dashboard',
-        title: 'Dashboard',
-        icon: 'chart'
-    },
+const Navbarmenu = [{}
 ]
 
 export default Navbarmenu;

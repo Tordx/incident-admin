@@ -26,6 +26,8 @@ import { db } from '..';
         date: doc.data().date,
         responded: doc.data().responded,
         recording: doc.data().recording,
+        incidenttype: doc.data().incidenttype,
+        barangay: doc.data().barangay,
       })
     })
 
@@ -61,6 +63,8 @@ import { db } from '..';
           date: doc.data().date,
           responded: doc.data().responded,
           recording: doc.data().recording,
+          incidenttype: doc.data().incidenttype,
+          barangay: doc.data().barangay,
         })
       })
   

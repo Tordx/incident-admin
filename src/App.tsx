@@ -9,6 +9,7 @@ import Credentials from 'screens/home/credentials';
 import ChangePhoto from 'screens/home/changephoto';
 import Profile from 'screens/home/Profile';
 import NotFound from 'screens/home/notfound';
+import { ForgotPassword } from 'screens/partials/auth/forgotpassword';
 
 
 const App: React.FC = () => {
@@ -26,6 +27,7 @@ const App: React.FC = () => {
       <Routes>
        <Route  path="/">
           <Route path="login" element={<Login/>} />
+          <Route path="forgotpassword" element={<ForgotPassword/>} />
           <Route index element = {<Login/>}/>
         </Route>
         <Route path = "admin">

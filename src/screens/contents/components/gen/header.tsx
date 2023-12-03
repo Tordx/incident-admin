@@ -86,8 +86,7 @@ export const Header: React.FC<Props> = ({menu}) => {
       <div className="left">
       
       <span onClick={() => navigate('/admin/dashboard')} className="app-name">
-      {city &&<FontAwesomeIcon icon={faLocationDot} style={{color: 'red', marginRight: 10, width: 25, height: 25}} />}
-      {city  ?`${city}, ${state}` : 'Incident Reporting System'}</span>
+      {`Hello ${currentUser?.displayName}, Welcome Back!`}</span>
       </div>
       <div className="right">
         {menu.map((item: any, index: number) =>(

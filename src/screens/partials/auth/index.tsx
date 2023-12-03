@@ -2,7 +2,7 @@ import { collection, getDocs } from '@firebase/firestore';
 import { auth, db } from '../../../firebase';
 import React, { useContext, useEffect, useState } from 'react'
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import '../styles/auth.css'
 import { AuthContext } from 'auth';
 import { logindata } from 'types/interfaces';
@@ -73,7 +73,7 @@ getUserData();
     <div className='container'>
       <div className='inner-container'>
          <div className='image-container'>
-          <img />
+          <img src={'https://i.imgur.com/1yHrmHy.png'} width={500} height={450} />
         </div>
         <div className='login-container'>
           <div className='login-input-container'>
@@ -93,6 +93,7 @@ getUserData();
         />
         <button type='submit' onClick={checkStatus}>Login</button>
          </div>
+         <Link to = '/forgotpassword'>forgot password</Link>
          </div>
       </div>
     </div>
