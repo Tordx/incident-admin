@@ -2,20 +2,20 @@ import React, { useEffect, useState } from 'react';
 import { months } from 'screens/contents/constants/months';
 import { BarChart } from '@mui/x-charts';
 import { reportdata, userdata } from 'types/interfaces';
-import { fetchdata, fetchreport, fetchusers } from '../../../../firebase/function';
+import { fetchbarangay, fetchdata, fetchreport, fetchusers } from '../../../../firebase/function';
 
 type Props = {
   year: string;
   infodata: string,
 };
 
-function IndividualChart({ infodata, year }: Props) {
+function BarangayChart({ infodata, year }: Props) {
   const [data, setdata] = useState<reportdata[]>([]);
   useEffect(() => {
 
     const fetchData = async () => {
       try {
-        const Accidents: reportdata[] = await fetchreport('incident', infodata) || [];
+        const Accidents: reportdata[] = await fetchbarangay('incident', infodata) || [];
 
         const accidentresult = Accidents.filter((item) => {
           const itemYear = item.date?.split('/')[2];
@@ -73,4 +73,4 @@ function IndividualChart({ infodata, year }: Props) {
   );
 }
 
-export default IndividualChart;
+export default BarangayChart;

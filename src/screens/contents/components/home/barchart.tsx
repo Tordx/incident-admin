@@ -85,7 +85,7 @@ function Chart({ year }: Props) {
           { data: calamintiesresult, label: 'Natural/Man-Made Calamities', color: '#FE0000'},
           { data: crimeresult, label: 'Crime Incidents', color: '#606165'},
         ]}
-        width={1250}
+        width={1400}
         height={500}
       />
     </>

@@ -75,6 +75,43 @@ import { db } from '..';
     }
     }
 
+    export const fetchbarangay = async(data: string, response: string) => {
+      try {
+        const querySnapshot = await getDocs(collection(db, data));
+        const thisdata: reportdata[] = []
+        querySnapshot.forEach((doc) => {
+          if(doc.data().barangay === response)
+          thisdata.push({
+            _reporttype: doc.data()._reporttype,
+            _report: doc.data()._report,
+            type: doc.data().type,
+            time: doc.data().time,
+            incidentID: doc.data().incidentID,
+            coordinates:doc.data().coordinates,
+            description: doc.data().description,
+            media: doc.data().media,
+            mdiatype: doc.data().mediatype,
+            victiminfo: doc.data().victiminfo,
+            number: doc.data().number,
+            reporter: doc.data().reporter,
+            reporterID: doc.data().reporterID,
+            reporterphotoURL: doc.data().reporterphotoURL,
+            reporttype: doc.data().reporttype,
+            date: doc.data().date,
+            responded: doc.data().responded,
+            recording: doc.data().recording,
+            incidenttype: doc.data().incidenttype,
+            barangay: doc.data().barangay,
+          })
+        })
+    
+        return thisdata;
+    
+      } catch(error){
+        console.log(error)
+      }
+      }
+
   export const fetchusers = async() => {
     try {
       const querySnapshot = await getDocs(collection(db, 'user'));

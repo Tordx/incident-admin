@@ -16,6 +16,7 @@ import Maps from 'screens/contents/components/home/map'
 import { Coordinate } from 'mapbox-gl'
 import { renderToString } from 'react-dom/server';
 import IndividualChart from 'screens/contents/components/home/individualChart'
+import BarangayChart from 'screens/contents/components/home/barangayChart'
 
 interface Coord {
   coordinates: [number, number][];
@@ -26,15 +27,16 @@ export default function Home({}) {
   const [isloading, setisloading] = useState(false);
   const [issuccess, setissuccess] = useState(false);
   const [report, setreport] = useState<reportdata[]>([])
-  const [incidenttype, setincidenttype] = useState<string[]>([])
+  const [incidenttype, setincidenttype] = useState<string[]>([]);
   const [accident, setaccident] = useState<reportdata[]>([]);
   const [calamities, setcalamities] = useState<reportdata[]>([]);
-  const [crime, setcrime] = useState<reportdata[]>([]);
+  const [barangay, setBarangay] = useState<string>('');
   const [selectedYear, setSelectedYear] = useState('2023');
   const [loading, setloading] = useState(false);
   const [showAccident, setshowAccident] = useState(false);
   const [showCalam, setshowCalam] = useState(false);
   const [showCrim, setshowCrim] = useState(false);
+  const [showBarangay, setshowBarangay] = useState(false)
   const [bsort, setbsort] = useState(false)
   const [csort, setcsort] = useState(false)
 
@@ -68,6 +70,10 @@ export default function Home({}) {
   fetchData();
   },[selectedYear])
 
+  const handleBarangayShow = (item: string) => {
+    setshowBarangay(true)
+    setBarangay(item)
+  }
 
   const [displayCount, setDisplayCount] = useState(10);
 
@@ -157,8 +163,27 @@ export default function Home({}) {
                   <Chart year={selectedYear}/>
                 </div>
               </div>
-              <div className='cards cardmargin'>
-                <strong>Total Incident Report per Area </strong>
+              <br/>
+              <br/>
+             
+                <div className='cards cardmargin'>
+                {showBarangay ?
+                   
+                   <> 
+                   <span className='data-length'>
+                    <h3>Reported Incident per Month</h3>
+                    <h5>Selected Year: <strong>{selectedYear}</strong></h5>
+                    <h5>Barangay Name: <strong>{barangay}</strong></h5>
+                    <h5>Total Reported Incidents: <strong>{report.length}</strong></h5>
+                    </span>
+                    <BarangayChart infodata = {barangay} year = {selectedYear} />
+                    <br/>
+                    <br/>
+                    <button onClick={() => setshowBarangay(false)}>Close</button>
+                   </>
+                  :
+                <>
+                <strong>Total Incident Report per Barangay </strong>
                   <div>
                     <table>
                       <thead className='dark-table'>
@@ -166,6 +191,7 @@ export default function Home({}) {
                           <th>No.</th>
                           <th onClick={() => handleSort('city')}>Area of Incidents {bsort ? '↓' : '↑'}</th>
                           <th onClick={() => handleSort('count')}>Total Report this Month {csort ? '↓' : '↑'}</th>
+                          <th>Action</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -175,16 +201,19 @@ export default function Home({}) {
                             <td>{index + 1}</td>
                             <td>{city}</td>
                             <td>{count}</td>
+                            <td><a style = {{color: 'red'}} onClick={() => handleBarangayShow(city)}>View</a></td>
                           </tr>
                         ))}
                       </tbody>
                     </table>
                   </div>
+                  </>
+                  }
                   <br/>
                   <br/>
                   {showCalam ? 
                       <> 
-                      <IndividualChart incidentType = {'Natural/Man-made Calamities'} year = {selectedYear} />
+                      <IndividualChart infodata = {'Natural/Man-made Calamities'} year = {selectedYear} />
                       <br/>
                       <br/>
                       <button onClick={() => setshowCalam(false)}>Close</button>
@@ -200,7 +229,7 @@ export default function Home({}) {
                   <br/>
                   {showAccident ? 
                       <> 
-                      <IndividualChart incidentType = {'Accidents'} year = {selectedYear} />
+                      <IndividualChart infodata = {'Accidents'} year = {selectedYear} />
                       <br/>
                       <br/>
                       <button onClick={() => setshowAccident(false)}>Close</button>
@@ -216,7 +245,7 @@ export default function Home({}) {
                   <br/>
                   {showCrim ? 
                       <> 
-                      <IndividualChart incidentType = {'Crime Incidents'} year = {selectedYear} />
+                      <IndividualChart infodata = {'Crime Incidents'} year = {selectedYear} />
                       <br/>
                       <br/>
                       <button onClick={() => setshowCrim(false)}>Close</button>
