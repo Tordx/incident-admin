@@ -10,18 +10,37 @@ type Props = {
 };
 
 function BarangayChart({ infodata, year }: Props) {
-  const [data, setdata] = useState<reportdata[]>([]);
+  const [accident, setaccident] = useState<reportdata[]>([]);
+  const [calamities, setcalamities] = useState<reportdata[]>([]);
+  const [crime, setcrime] = useState<reportdata[]>([]);
   useEffect(() => {
 
     const fetchData = async () => {
       try {
-        const Accidents: reportdata[] = await fetchbarangay('incident', infodata) || [];
+        const Accidents: reportdata[] = await fetchreport('incident', 'Accidents') || [];
 
         const accidentresult = Accidents.filter((item) => {
           const itemYear = item.date?.split('/')[2];
           return itemYear === year;
         });
-        setdata(accidentresult);
+        const filteraccident =  accidentresult.filter(item => item.barangay === infodata)
+        setaccident(filteraccident);
+        const Calamities: reportdata[] = await fetchreport('incident', 'Natural/Man-made Calamities') || [];
+
+        const calamintiesresult = Calamities.filter((item) => {
+          const itemYear = item.date?.split('/')[2];
+          return itemYear === year;
+        });
+        const filtercalam =  calamintiesresult.filter(item => item.barangay === infodata)
+        setcalamities(filtercalam);
+        const Crime: reportdata[] = await fetchreport('incident', 'Crime Incidents') || [];
+
+        const crimeresult = Crime.filter((item) => {
+          const itemYear = item.date?.split('/')[2];
+          return itemYear === year;
+        });
+        const filtercrime =  crimeresult.filter(item => item.barangay === infodata)
+        setcrime(filtercrime);
 
       } catch (err) {
         console.log(err);
@@ -37,8 +56,8 @@ function BarangayChart({ infodata, year }: Props) {
 
     data.forEach((item) => {
       if (item.date !== undefined) {
-        const dateParts = item.date.split('/'); 
-        const month = parseInt(dateParts[0], 10) - 1;
+        const dateParts = item.date.split('/'); // Assuming date is in the format MM-DD-YYYY
+        const month = parseInt(dateParts[0], 10) - 1; // Adjust month index (0-based)
 
         monthData[month] += 1;
       }
@@ -47,7 +66,9 @@ function BarangayChart({ infodata, year }: Props) {
     return monthData;
   };
 
-  const processeddata = accumulateDataByMonth(data);
+  const accidentresult = accumulateDataByMonth(accident);
+  const calamintiesresult = accumulateDataByMonth(calamities);
+  const crimeresult = accumulateDataByMonth(crime)
 
   return (
     <>
@@ -64,7 +85,9 @@ function BarangayChart({ infodata, year }: Props) {
         }}
         series={[
           
-          { data: processeddata, label: infodata, color: '#FE0000'},
+          { data: accidentresult, label: 'Accidents', color: '#D9D9D9',},
+          { data: calamintiesresult, label: 'Natural/Man-Made Calamities', color: '#FE0000'},
+          { data: crimeresult, label: 'Crime Incidents', color: '#606165'},
         ]}
         width={1500}
         height={300}
