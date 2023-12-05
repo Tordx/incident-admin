@@ -54,7 +54,8 @@ export interface reportdata {
   responded: boolean,
   recording: string,
   incidenttype: string,
-  barangay: string
+  barangay: string,
+  actualincident: string,
 
 
 

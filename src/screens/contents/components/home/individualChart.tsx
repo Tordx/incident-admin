@@ -7,9 +7,10 @@ import { fetchdata, fetchreport, fetchusers } from '../../../../firebase/functio
 type Props = {
   year: string;
   infodata: string,
+  actual: string,
 };
 
-function IndividualChart({ infodata, year }: Props) {
+function IndividualChart({ infodata, actual, year }: Props) {
   const [data, setdata] = useState<reportdata[]>([]);
   useEffect(() => {
 
@@ -21,7 +22,10 @@ function IndividualChart({ infodata, year }: Props) {
           const itemYear = item.date?.split('/')[2];
           return itemYear === year;
         });
-        setdata(accidentresult);
+
+        const filterIncidentType: reportdata[] = accidentresult
+        .filter((item) => item.actualincident === actual);
+        setdata(filterIncidentType)
 
       } catch (err) {
         console.log(err);
@@ -64,7 +68,7 @@ function IndividualChart({ infodata, year }: Props) {
         }}
         series={[
           
-          { data: processeddata, label: infodata, color: '#FE0000'},
+          { data: processeddata, label: actual, color: '#FE0000'},
         ]}
         width={1500}
         height={300}

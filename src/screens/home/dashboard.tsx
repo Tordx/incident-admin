@@ -17,6 +17,7 @@ import { Coordinate } from 'mapbox-gl'
 import { renderToString } from 'react-dom/server';
 import IndividualChart from 'screens/contents/components/home/individualChart'
 import BarangayChart from 'screens/contents/components/home/barangayChart'
+import Table from 'screens/contents/components/home/table'
 
 interface Coord {
   coordinates: [number, number][];
@@ -213,7 +214,7 @@ export default function Home({}) {
                   <br/>
                   {showCalam ? 
                       <> 
-                      <IndividualChart infodata = {'Natural/Man-made Calamities'} year = {selectedYear} />
+                      <Table selectedYear= {selectedYear} data= {'Natural/Man-made Calamities'} title='Specific Incident report for Natural/Man-made Calamities' />
                       <br/>
                       <br/>
                       <button onClick={() => setshowCalam(false)}>Close</button>
@@ -228,8 +229,9 @@ export default function Home({}) {
                     }
                   <br/>
                   {showAccident ? 
-                      <> 
-                      <IndividualChart infodata = {'Accidents'} year = {selectedYear} />
+                      <>
+                        <Table selectedYear= {selectedYear} data= {'Accidents'} title='Specific Incident report for Accidents' />
+                      {/* <IndividualChart infodata = {'Accidents'} year = {selectedYear} /> */}
                       <br/>
                       <br/>
                       <button onClick={() => setshowAccident(false)}>Close</button>
@@ -245,7 +247,8 @@ export default function Home({}) {
                   <br/>
                   {showCrim ? 
                       <> 
-                      <IndividualChart infodata = {'Crime Incidents'} year = {selectedYear} />
+                      <Table selectedYear= {selectedYear} data= {'Crime Incidents'} title='Specific Incident report for Crime Incidents' />
+                      {/* <IndividualChart infodata = {'Crime Incidents'} year = {selectedYear} /> */}
                       <br/>
                       <br/>
                       <button onClick={() => setshowCrim(false)}>Close</button>

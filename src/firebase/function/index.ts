@@ -28,6 +28,7 @@ import { db } from '..';
         recording: doc.data().recording,
         incidenttype: doc.data().incidenttype,
         barangay: doc.data().barangay,
+        actualincident: doc.data().actualincident,
       })
     })
 
@@ -65,6 +66,7 @@ import { db } from '..';
           recording: doc.data().recording,
           incidenttype: doc.data().incidenttype,
           barangay: doc.data().barangay,
+          actualincident: doc.data().actualincident,
         })
       })
   
@@ -102,6 +104,7 @@ import { db } from '..';
             recording: doc.data().recording,
             incidenttype: doc.data().incidenttype,
             barangay: doc.data().barangay,
+            actualincident: doc.data().actualincident,
           })
         })
     
