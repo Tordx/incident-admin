@@ -175,7 +175,7 @@ export default function Home({}) {
                     <h3>Reported Incident per Month</h3>
                     <h5>Selected Year: <strong>{selectedYear}</strong></h5>
                     <h5>Barangay Name: <strong>{barangay}</strong></h5>
-                    <h5>Total Reported Incidents: <strong>{report.length}</strong></h5>
+                    {/* <h5>Total Reported Incidents: <strong>{report.length}</strong></h5> */}
                     </span>
                     <BarangayChart infodata = {barangay} year = {selectedYear} />
                     <br/>
