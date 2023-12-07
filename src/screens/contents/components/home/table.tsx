@@ -174,7 +174,7 @@ export default function Table({data, selectedYear, title}: Props) {
   return (
     <>
                 <strong>{title}</strong>
-                <a onClick={handlePrint} style={{color: '#87CEEB'}}><FontAwesomeIcon icon={faPrint} color = '#87CEEB' /> download Table</a>
+                {!showdata && <a onClick={handlePrint} style={{color: '#87CEEB'}}><FontAwesomeIcon icon={faPrint} color = '#87CEEB' /> download Table</a>}
                   <div>
                     {showdata ? 
                       <>

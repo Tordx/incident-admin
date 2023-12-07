@@ -3,6 +3,9 @@ import { months } from 'screens/contents/constants/months';
 import { BarChart } from '@mui/x-charts';
 import { reportdata, userdata } from 'types/interfaces';
 import { fetchdata, fetchreport, fetchusers } from '../../../../firebase/function';
+import html2canvas from 'html2canvas';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPrint } from '@fortawesome/free-solid-svg-icons';
 
 type Props = {
   year: string;
@@ -53,8 +56,47 @@ function IndividualChart({ infodata, actual, year }: Props) {
 
   const processeddata = accumulateDataByMonth(data);
 
+  const handleChart = async() => {
+    const chartContainer = document.getElementById('ind-container');
+
+    if (chartContainer) {
+      try {
+        const canvas = await html2canvas(chartContainer);
+        const dataURL = canvas.toDataURL('image/png');
+  
+        const printWindow = window.open('', infodata);
+        if (printWindow) {
+          printWindow.document.write(`
+            <html>
+              <head>
+                <title>${infodata}</title>
+              </head>
+              <body>
+                <img src="${dataURL}" alt="Chart" alt="Chart" width="100%" />
+                <script>
+                  window.onload = function() {
+                    window.print();
+                    window.onafterprint = function() {
+                      printWindow.close();
+                    };
+                  };
+                </script>
+              </body>
+            </html>
+          `);
+          printWindow.document.close();
+        }
+      } catch (error) {
+        console.error('Error capturing chart screenshot:', error);
+      }
+    }
+  };
+
+
   return (
-    <>
+    <><a onClick={handleChart} style={{color: '#87CEEB'}}><FontAwesomeIcon icon={faPrint} color = '#87CEEB' /> download Chart</a>
+    <div id = 'ind-container'>
+      
       <BarChart
         xAxis={[{ scaleType: 'band', data: months }]}
         slotProps={{
@@ -73,6 +115,7 @@ function IndividualChart({ infodata, actual, year }: Props) {
         width={1500}
         height={300}
       />
+    </div>
     </>
   );
 }
