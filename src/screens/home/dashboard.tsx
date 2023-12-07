@@ -18,6 +18,9 @@ import { renderToString } from 'react-dom/server';
 import IndividualChart from 'screens/contents/components/home/individualChart'
 import BarangayChart from 'screens/contents/components/home/barangayChart'
 import Table from 'screens/contents/components/home/table'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faPrint } from '@fortawesome/free-solid-svg-icons'
+import html2canvas from 'html2canvas';
 
 interface Coord {
   coordinates: [number, number][];
@@ -115,6 +118,123 @@ export default function Home({}) {
     }
   });
 
+
+
+  const printableIncidentTable = (
+    <div>
+    <table className="printable-table">
+      <thead>
+        <tr>
+          <th>No.</th>
+          <th>Incident</th>
+          <th>Count</th>
+        </tr>
+      </thead>
+      <tbody>
+      {sortedTableData.map(([city, count], index) => (
+          <tr key={index}>
+            <td>{index + 1}</td>
+            <td>{city}</td>
+            <td>{count}</td>
+          </tr>
+      ))}
+      </tbody>
+    </table>
+  </div>
+  )
+
+  const handlePrint = () => {
+    const printableContent = renderToString(printableIncidentTable);
+
+    if (printableContent) {
+      const printWindow = window.open('', '_blank');
+      if (printWindow) {
+        printWindow?.document.write(`
+          <html>
+            <head>
+              <style>
+                @media print {
+                  body * {
+                    visibility: hidden;
+                  }
+                  .printable-table, .printable-table * {
+                    visibility: visible;
+                  }
+                  .printable-table {
+                    position: absolute;
+                    left: 0;
+                    top: 0;
+                  }
+                  table {
+                    border-collapse: collapse;
+                    width: 100%;
+                  }
+                  th, td {
+                    border: 1px solid #dddddd;
+                    text-align: left;
+                    padding: 8px;
+                  }
+                  th {
+                    background-color: #f2f2f2;
+                  }
+                }
+              </style>
+            </head>
+            <body>
+              ${printableContent}
+              <script>
+                window.onload = function() {
+                  window.print();
+                  window.onafterprint = function() {
+                    printWindow?.close();
+                  }
+                }
+              </script>
+            </body>
+          </html>
+        `);
+        printWindow?.document.close();
+      }
+    }
+  };
+
+  const handleChart = async() => {
+    const chartContainer = document.getElementById('chart-container');
+
+    if (chartContainer) {
+      try {
+        const canvas = await html2canvas(chartContainer);
+        const dataURL = canvas.toDataURL('image/png');
+  
+        const printWindow = window.open('', '_blank');
+        if (printWindow) {
+          printWindow.document.write(`
+            <html>
+              <head>
+                <title>Print</title>
+              </head>
+              <body>
+                <img src="${dataURL}" alt="Chart" alt="Chart" width="100%" />
+                <script>
+                  window.onload = function() {
+                    window.print();
+                    window.onafterprint = function() {
+                      printWindow.close();
+                    };
+                  };
+                </script>
+              </body>
+            </html>
+          `);
+          printWindow.document.close();
+        }
+      } catch (error) {
+        console.error('Error capturing chart screenshot:', error);
+      }
+    }
+  };
+
+
   return (
     <div className='container'>
       {isloading && 
@@ -151,6 +271,8 @@ export default function Home({}) {
                 <span className='data-length'>
                 <h5>Selected Year: <strong>{selectedYear}</strong></h5>
                 <h5>Total Reported Incidents: <strong>{report.length}</strong></h5>
+                <a onClick={handleChart} style={{color: '#87CEEB'}}><FontAwesomeIcon icon={faPrint} color = '#87CEEB' /> download chart</a>
+
                 </span>
                 <span>
                 <select defaultValue={selectedYear} onChange={(e) => setSelectedYear(e.target.value)}>
@@ -185,6 +307,8 @@ export default function Home({}) {
                   :
                 <>
                 <strong>Total Incident Report per Barangay </strong>
+                <a onClick={handlePrint} style={{color: '#87CEEB'}}><FontAwesomeIcon icon={faPrint} color = '#87CEEB' /> download data</a>
+
                   <div>
                     <table>
                       <thead className='dark-table'>

@@ -67,7 +67,7 @@ function Chart({ year }: Props) {
   const crimeresult = accumulateDataByMonth(crime)
 
   return (
-    <>
+    <div id = 'chart-container'>
       <BarChart
         xAxis={[{ scaleType: 'band', data: months }]}
         slotProps={{
@@ -88,7 +88,7 @@ function Chart({ year }: Props) {
         width={1400}
         height={500}
       />
-    </>
+    </div>
   );
 }
 

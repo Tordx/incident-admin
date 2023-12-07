@@ -2,6 +2,9 @@ import { fetchdata, fetchreport } from '../../../../firebase/function'
 import React, { useEffect, useState } from 'react'
 import { reportdata } from 'types/interfaces'
 import IndividualChart from './individualChart'
+import { renderToString } from 'react-dom/server'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faPrint } from '@fortawesome/free-solid-svg-icons'
 
 type Props = {
   data: string
@@ -90,9 +93,88 @@ export default function Table({data, selectedYear, title}: Props) {
     }
   });
 
+  const printableIncidentTable = (
+    <div>
+    <table className="printable-table">
+      <thead>
+        <tr>
+          <th>No.</th>
+          <th>Incident</th>
+          <th>Count</th>
+        </tr>
+      </thead>
+      <tbody>
+      {sortedTableData.map(([city, count], index) => (
+          <tr key={index}>
+            <td>{index + 1}</td>
+            <td>{city}</td>
+            <td>{count}</td>
+          </tr>
+      ))}
+      </tbody>
+    </table>
+  </div>
+  )
+
+  const handlePrint = () => {
+    const printableContent = renderToString(printableIncidentTable);
+
+    if (printableContent) {
+      const printWindow = window.open('', '_blank');
+      if (printWindow) {
+        printWindow?.document.write(`
+          <html>
+            <head>
+              <style>
+                @media print {
+                  body * {
+                    visibility: hidden;
+                  }
+                  .printable-table, .printable-table * {
+                    visibility: visible;
+                  }
+                  .printable-table {
+                    position: absolute;
+                    left: 0;
+                    top: 0;
+                  }
+                  table {
+                    border-collapse: collapse;
+                    width: 100%;
+                  }
+                  th, td {
+                    border: 1px solid #dddddd;
+                    text-align: left;
+                    padding: 8px;
+                  }
+                  th {
+                    background-color: #f2f2f2;
+                  }
+                }
+              </style>
+            </head>
+            <body>
+              ${printableContent}
+              <script>
+                window.onload = function() {
+                  window.print();
+                  window.onafterprint = function() {
+                    printWindow?.close();
+                  }
+                }
+              </script>
+            </body>
+          </html>
+        `);
+        printWindow?.document.close();
+      }
+    }
+  };
+
   return (
     <>
                 <strong>{title}</strong>
+                <a onClick={handlePrint} style={{color: '#87CEEB'}}><FontAwesomeIcon icon={faPrint} color = '#87CEEB' /> download Table</a>
                   <div>
                     {showdata ? 
                       <>
